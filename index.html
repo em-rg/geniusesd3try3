@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geniuses, Visualized - Inspired by Giorgia Lupi</title>
+    <style>
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Baskerville", "Times New Roman", serif;
+    background-color: #f9f4e6; /* Lighter cream background to match image */
+    color: #5c4738;
+    line-height: 1.6;
+    padding: 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+header {
+    max-width: 500px;
+    margin: 30px 0 40px 50px;
+    text-align: left;
+    padding: 0;
+}
+
+h1 {
+    font-size: 2.3rem;
+    margin-bottom: 18px;
+    font-weight: normal;
+    color: #8c1a1a;
+    letter-spacing: 0.5px;
+}
+
+.description {
+    font-size: 0.9rem;
+    margin: 0 0 12px;
+    line-height: 1.4;
+    color: #5c4738;
+    max-width: 450px;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.main-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.name-lists {
+    width: 220px;
+    padding: 0 15px;
+    margin-top: 20px;
+}
+
+.name-list {
+    margin-bottom: 22px;
+}
+
+.name-list h3 {
+    font-size: 16px;
+    font-style: italic;
+    color: #8c1a1a;
+    margin-bottom: 8px;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+.name-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.name-list li {
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #333333;
+    line-height: 1.3;
+}
+
+.name-list .name {
+    font-weight: normal;
+}
+
+.name-list .year {
+    font-size: 0.85em;
+    color: #8c7b6c;
+    margin-left: 4px;
+}
+
+/* Legend styles */
+.legend {
+    width: 180px;
+    padding: 20px 20px 20px 40px;
+    float: left;
+}
+
+.legend h2 {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    font-weight: normal;
+    color: #8c1a1a;
+    letter-spacing: 0.3px;
+    opacity: 0.9;
+}
+
+.legend-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.legend-fields, .legend-node-size, .legend-year {
+    margin-bottom: 24px;
+}
+
+.legend-fields h3, .legend-node-size h3, .legend-year h3 {
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+    font-weight: normal;
+    color: #5c4738;
+    letter-spacing: 0.2px;
+    opacity: 0.9;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.legend-color {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: none;
+}
+
+.legend-label {
+    font-size: 0.85rem;
+    color: #5c4738;
+}
+
+/* Visualization styles */
+#visualization {
+    width: calc(100% - 400px);
+    min-height: 800px;
+    overflow: visible;
+    margin: 0 auto;
+}
+
+/* Tooltip styles */
+.tooltip {
+    position: absolute;
+    padding: 10px 12px;
+    background: rgba(249, 244, 233, 0.98);
+    border: 1px solid #d4c48f;
+    pointer-events: none;
+    font-size: 0.85rem;
+    max-width: 220px;
+    box-shadow: 0 0 5px rgba(92, 63, 44, 0.15);
+    z-index: 100;
+    border-radius: 3px;
+}
+
+footer {
+    margin-top: 30px;
+    text-align: left;
+    font-size: 0.75rem;
+    color: #8c7b6c;
+    padding: 20px 0;
+    width: 280px;
+    margin-left: 40px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .legend {
+        width: 100%;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    #visualization {
+        width: 100%;
+        margin: 0 auto;
+    }
+    
+    .name-lists {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .name-list {
+        width: calc(33% - 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .description {
+        font-size: 0.8rem;
+    }
+    
+    #visualization {
+        min-height: 500px;
+    }
+    
+    .name-list {
+        width: calc(50% - 20px);
+    }
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Geniuses, visualized</h1>
+        <p class="description">
+            This visualization explores the one hundred geniuses of language identified in the book "Geniuses" by Harold Bloom.
+        </p>
+        <p class="description">
+            The representation is based on the Kabbalistic Sephirot structure of the 
+            diagram in the book, using the paths from the Kabbalistic tradition, 
+            historical period of creation, main profession, 
+            countries of origin, number of pages dedicated 
+            to them in the book, wikipedia.org and relationship with other 
+            historical figures.
+        </p>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="legend">
+                <h2>How to read it?</h2>
+                <div class="legend-content">
+                    <!-- Legend content will be filled with JavaScript -->
+                </div>
+            </div>
+
+            <div id="visualization">
+                <!-- Visualization will be created with D3.js -->
+            </div>
+            
+            <div class="name-lists">
+                <!-- Name lists for each Sephirot will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Harold Bloom, "Genius" Italian edition Rizzoli, 2002. Source: wikipedia.com</p>
+    </footer>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Embedded CSV data
+        const csvData = `Name,Country of Origin,Field of Contribution,Year,Sephirot Number,Lustre Level,Wikipedia Views
+Homer,Greece,Poetry,-800,0,1,80000
+Shakespeare,England,Poetry,1564,0,1,150000
+Dante,Italy,Poetry,1265,0,1,100000
+Cervantes,Spain,Fiction,1547,0,1,90000
+Tolstoy,Russia,Fiction,1828,0,1,120000
+The Yahwist,Israel,Theology,-950,1,3,40000
+Socrates,Greece,Philosophy,-470,1,3,70000
+Plato,Greece,Philosophy,-428,1,2,125000
+Aristotle,Greece,Philosophy,-384,1,2,130000
+St. Augustine,Algeria,Theology,354,1,2,85000
+St. Thomas Aquinas,Italy,Theology,1225,1,3,70000
+Rabelais,France,Fiction,1494,1,3,45000
+Montaigne,France,Literature,1533,1,2,60000
+Milton,England,Poetry,1608,1,2,75000
+Goethe,Germany,Literature,1749,1,1,100000
+Moses,Ancient Egypt,Theology,-1300,2,2,110000
+Jesus,Palestine,Theology,0,2,1,200000
+Muhammad,Arabia,Theology,570,2,1,180000
+Buddha,India,Theology,-563,2,1,160000
+Confucius,China,Philosophy,-551,2,2,140000
+Laozi,China,Philosophy,-500,2,3,85000
+Virgil,Rome,Poetry,-70,2,3,70000
+St. Paul,Turkey,Theology,5,2,2,95000
+The Koran Editors,Arabia,Theology,650,2,3,65000
+Wordsworth,England,Poetry,1770,2,3,60000
+Sophocles,Greece,Theater,-496,3,2,65000
+Euripides,Greece,Theater,-480,3,3,55000
+Molière,France,Theater,1622,3,2,70000
+Ibsen,Norway,Theater,1828,3,2,65000
+Oscar Wilde,Ireland,Theater,1854,3,3,100000
+Søren Kierkegaard,Denmark,Philosophy,1813,3,3,75000
+Ralph Waldo Emerson,USA,Philosophy,1803,3,3,65000
+Nietzsche,Germany,Philosophy,1844,3,2,120000
+Freud,Austria,Philosophy,1856,3,1,130000
+Proust,France,Fiction,1871,3,2,85000
+Job,Ancient Israel,Theology,-500,4,2,50000
+Isaiah,Israel,Theology,-700,4,2,60000
+Jeremiah,Israel,Theology,-650,4,3,40000
+Ezekiel,Israel,Theology,-600,4,3,35000
+The Bhagavad Gita Authors,India,Theology,-400,4,2,55000
+The Mahabharata Authors,India,Literature,-400,4,3,50000
+The Upanishads Authors,India,Theology,-700,4,3,45000
+Pindar,Greece,Poetry,-518,4,3,30000
+Lucretius,Rome,Philosophy,-99,4,3,40000
+Francis Bacon,England,Philosophy,1561,4,3,65000
+Horace,Rome,Poetry,-65,5,3,40000
+Ovid,Rome,Poetry,-43,5,3,50000
+Chaucer,England,Poetry,1343,5,2,70000
+François Villon,France,Poetry,1431,5,3,35000
+Edmund Spenser,England,Poetry,1553,5,3,40000
+John Donne,England,Poetry,1572,5,2,55000
+Alexander Pope,England,Poetry,1688,5,3,45000
+Samuel Johnson,England,Literature,1709,5,2,60000
+Walt Whitman,USA,Poetry,1819,5,2,85000
+Emily Dickinson,USA,Poetry,1830,5,2,90000
+Stendhal,France,Fiction,1783,6,2,55000
+Jane Austen,England,Fiction,1775,6,2,95000
+Charles Dickens,England,Fiction,1812,6,1,120000
+Fyodor Dostoevsky,Russia,Fiction,1821,6,1,115000
+Henry James,USA,Fiction,1843,6,2,65000
+Virginia Woolf,England,Fiction,1882,6,2,100000
+James Joyce,Ireland,Fiction,1882,6,1,90000
+Samuel Beckett,Ireland,Theater,1906,6,2,80000
+Thomas Mann,Germany,Fiction,1875,6,2,70000
+Franz Kafka,Czech Republic,Fiction,1883,6,2,95000
+Aeschylus,Greece,Theater,-525,7,2,55000
+Aristophanes,Greece,Theater,-446,7,3,50000
+Herodotus,Greece,Literature,-484,7,3,60000
+Thucydides,Greece,Literature,-460,7,3,55000
+Tacitus,Rome,Literature,56,7,3,45000
+Lady Murasaki,Japan,Fiction,973,7,3,40000
+Rumi,Persia,Poetry,1207,7,3,75000
+Erasmus,Netherlands,Philosophy,1466,7,3,50000
+Voltaire,France,Philosophy,1694,7,2,85000
+Samuel Taylor Coleridge,England,Poetry,1772,7,3,55000
+Sappho,Greece,Poetry,-630,8,3,45000
+Catullus,Rome,Poetry,-84,8,3,35000
+Petrarch,Italy,Poetry,1304,8,3,50000
+William Blake,England,Poetry,1757,8,2,75000
+John Keats,England,Poetry,1795,8,3,70000
+Percy Bysshe Shelley,England,Poetry,1792,8,3,65000
+Lord Byron,England,Poetry,1788,8,2,80000
+Victor Hugo,France,Literature,1802,8,2,85000
+Charles Baudelaire,France,Poetry,1821,8,2,70000
+T.S. Eliot,USA,Poetry,1888,8,2,75000
+Miguel de Cervantes,Spain,Fiction,1547,9,1,90000
+Jonathan Swift,Ireland,Literature,1667,9,2,65000
+Mark Twain,USA,Fiction,1835,9,2,110000
+Leo Tolstoy,Russia,Fiction,1828,9,1,120000
+Anton Chekhov,Russia,Fiction,1860,9,2,85000
+Marcel Proust,France,Fiction,1871,9,2,85000
+William Faulkner,USA,Fiction,1897,9,2,80000
+Jorge Luis Borges,Argentina,Fiction,1899,9,2,75000
+Pablo Neruda,Chile,Poetry,1904,9,3,70000
+Gabriel García Márquez,Colombia,Fiction,1927,9,2,90000`;
+
+        // Sephirot data structure based on Giorgia Lupi's visualization
+        const sephirotStructure = [
+            { name: "Keter (crown)", x: 0.5, y: 0.14, color: "#d4c48f" },
+            { name: "Hokhmah (wisdom)", x: 0.29, y: 0.19, color: "#d4c48f" },
+            { name: "Binah (understanding)", x: 0.71, y: 0.19, color: "#d4c48f" },
+            { name: "Hesed (kindness)", x: 0.68, y: 0.30, color: "#d4c48f" },
+            { name: "Din (severity)", x: 0.32, y: 0.30, color: "#d4c48f" },
+            { name: "Tiferet (beauty)", x: 0.5, y: 0.43, color: "#d4c48f" },
+            { name: "Netzah (eternity)", x: 0.68, y: 0.52, color: "#d4c48f" },
+            { name: "Hod (splendor)", x: 0.32, y: 0.52, color: "#d4c48f" },
+            { name: "Yesod (foundation)", x: 0.5, y: 0.62, color: "#d4c48f" },
+            { name: "Malkut (kingdom)", x: 0.5, y: 0.74, color: "#d4c48f" }
+        ];
+
+        // Field colors match the Giorgia Lupi's color palette
+        const fieldColors = {
+            "Philosophy": "#b5dbb9",   // Soft mint green
+            "Literature": "#a4d7d0",   // Soft teal
+            "Theology": "#e8daae",     // Soft sand/mustard
+            "Poetry": "#d9e8b8",       // Soft yellow-green
+            "Theater": "#f3c7bf",      // Soft coral
+            "Fiction": "#e6c0dc",      // Soft lavender
+        };
+
+        // Arc placement around Sephirot nodes
+        const arcRadius = 80; // Increased for better visibility
+        const getArcPositions = (sephirotIndex, count) => {
+            const center = sephirotStructure[sephirotIndex];
+            const positions = [];
+            
+            for (let i = 0; i < count; i++) {
+                // Calculate position on an arc around the Sephirot
+                const angle = (i / count) * Math.PI + (Math.PI / 2);
+                const x = center.x + Math.cos(angle) * (arcRadius / 800);
+                const y = center.y + Math.sin(angle) * (arcRadius / 800);
+                positions.push({ x, y });
+            }
+            
+            return positions;
+        };
+
+        // Create SVG and set up legend
+        function setupVisualization() {
+            // Create the main SVG container
+            const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+            const containerWidth = document.querySelector('.main-content').offsetWidth;
+            const width = containerWidth - margin.left - margin.right;
+            const height = Math.min(window.innerHeight * 0.75, 900); // Responsive height
+            
+            const svg = d3.select('#visualization')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left}, ${margin.top})`);
+            
+            // Add scales for positioning
+            const xScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, width - margin.left - margin.right]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, height - margin.top - margin.bottom]);
+            
+            // Draw connecting lines between Sephirot
+            const sephirotConnections = [
+                [0, 1], [0, 2], [1, 3], [1, 5], [2, 4], [2, 5], 
+                [3, 5], [3, 6], [4, 5], [4, 7], [5, 6], [5, 7], 
+                [5, 8], [6, 8], [7, 8], [8, 9]
+            ];
+            
+            // Draw paths connecting the Sephirot
+            sephirotConnections.forEach(connection => {
+                const start = sephirotStructure[connection[0]];
+                const end = sephirotStructure[connection[1]];
+                
+                svg.append('line')
+                    .attr('x1', xScale(start.x))
+                    .attr('y1', yScale(start.y))
+                    .attr('x2', xScale(end.x))
+                    .attr('y2', yScale(end.y))
+                    .attr('stroke', '#d4c48f')
+                    .attr('stroke-width', 1)
+                    .attr('opacity', 0.7);
+            });
+            
+            // Draw the Sephirot nodes
+            svg.selectAll('.sephirot-node')
+                .data(sephirotStructure)
+                .enter()
+                .append('circle')
+                .attr('cx', d => xScale(d.x))
+                .attr('cy', d => yScale(d.y))
+                .attr('r', 12) // Larger Sephirot nodes
+                .attr('fill', d => d.color)
+                .attr('stroke', '#5c4738')
+                .attr('stroke-width', 1);
+            
+            // Add Sephirot labels
+            svg.selectAll('.sephirot-label')
+                .data(sephirotStructure)
+                .enter()
+                .append('text')
+                .attr('x', d => xScale(d.x))
+                .attr('y', d => yScale(d.y) + 32) // Below the node
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '14px')
+                .attr('fill', '#5c4738')
+                .text(d => d.name.split(' ')[0]); // Just the first part of the name
+                
+            // Create legend
+            const legend = d3.select('.legend-content');
+            
+            // Field colors for the legend
+            const legendContent = legend.append('div')
+                .attr('class', 'legend-fields');
+            
+            legendContent.append('h3')
+                .text('Field of contribution');
+            
+            Object.entries(fieldColors).forEach(([field, color]) => {
+                const legendItem = legendContent.append('div')
+                    .attr('class', 'legend-item');
+                
+                legendItem.append('div')
+                    .attr('class', 'legend-color')
+                    .style('background-color', color);
+                
+                legendItem.append('div')
+                    .attr('class', 'legend-label')
+                    .text(field);
+            });
+            
+            // Node size legend
+            const nodeSizeLegend = legend.append('div')
+                .attr('class', 'legend-node-size');
+            
+            nodeSizeLegend.append('h3')
+                .text('Node size');
+            
+            nodeSizeLegend.append('p')
+                .text('Represents Wikipedia page views (relative popularity)');
+            
+            // Year legend
+            const yearLegend = legend.append('div')
+                .attr('class', 'legend-year');
+            
+            yearLegend.append('h3')
+                .text('Position within arc');
+            
+            yearLegend.append('p')
+                .text('Arranged chronologically by time period');
+            
+            return {
+                svg,
+                xScale,
+                yScale,
+                width,
+                height
+            };
+        }
+
+        function createVisualization() {
+            const { svg, xScale, yScale, width, height } = setupVisualization();
+            
+            // Parse the CSV data
+            const data = d3.csvParse(csvData);
+            
+            // Apply field colors based on contribution field
+            data.forEach(d => {
+                d['Field Color'] = fieldColors[d['Field of Contribution']] || "#c7e1bc";
+            });
+            
+            // Group geniuses by their assigned Sephirot
+            const geniusesBySephirot = {};
+            sephirotStructure.forEach((s, i) => {
+                geniusesBySephirot[i] = data.filter(d => d['Sephirot Number'] == i);
+            });
+            
+            // Create a div to hold name lists
+            const nameLists = d3.select('.name-lists');
+            
+            // Create genius nodes for each Sephirot
+            Object.entries(geniusesBySephirot).forEach(([sephirotIndex, geniuses]) => {
+                // Sort geniuses by date
+                geniuses.sort((a, b) => +a['Year'] - +b['Year']);
+                
+                // Calculate node positions around Sephirot
+                const positions = getArcPositions(+sephirotIndex, geniuses.length);
+                
+                // Create genius nodes
+                geniuses.forEach((genius, i) => {
+                    const pos = positions[i];
+                    const sizeScale = d3.scaleLinear()
+                        .domain([1000, 100000])
+                        .range([5, 12])
+                        .clamp(true);
+                    
+                    const size = sizeScale(+genius['Wikipedia Views']);
+                    
+                    // Draw the node
+                    const node = svg.append('circle')
+                        .attr('cx', xScale(pos.x))
+                        .attr('cy', yScale(pos.y))
+                        .attr('r', size)
+                        .attr('fill', genius['Field Color'])
+                        .attr('stroke', '#5c4738')
+                        .attr('stroke-width', 0.5)
+                        .attr('class', 'genius-node')
+                        .attr('data-name', genius['Name']);
+                    
+                    // Add tooltip interaction
+                    node.on('mouseover', function(event, d) {
+                        d3.select(this)
+                            .attr('stroke-width', 2);
+                        
+                        const tooltip = d3.select('body').append('div')
+                            .attr('class', 'tooltip')
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 10) + 'px')
+                            .style('opacity', 0);
+                        
+                        tooltip.html(`
+                            <strong>${genius['Name']}</strong><br>
+                            ${genius['Field of Contribution']}<br>
+                            ${genius['Year']}<br>
+                            Lustre Level: ${genius['Lustre Level']}<br>
+                            Wikipedia Views: ${(+genius['Wikipedia Views']).toLocaleString()}
+                        `)
+                        .transition()
+                        .duration(200)
+                        .style('opacity', 1);
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .attr('stroke-width', 0.5);
+                        
+                        d3.select('.tooltip')
+                            .transition()
+                            .duration(500)
+                            .style('opacity', 0)
+                            .remove();
+                    });
+                    
+                    // Add lustre level indicator
+                    if (genius['Lustre Level'] && genius['Lustre Level'] !== '0') {
+                        svg.append('text')
+                            .attr('x', xScale(pos.x))
+                            .attr('y', yScale(pos.y) + 3)
+                            .attr('text-anchor', 'middle')
+                            .attr('font-size', '9px')
+                            .attr('fill', '#5c4738')
+                            .attr('pointer-events', 'none')
+                            .text(genius['Lustre Level']);
+                    }
+                });
+                
+                // Add names to the side lists
+                const sephirot = sephirotStructure[+sephirotIndex];
+                const nameList = nameLists.append('div')
+                    .attr('class', 'name-list');
+                
+                nameList.append('h3')
+                    .text(sephirot.name.split(' ')[0]);
+                
+                const nameItems = nameList.append('ul');
+                
+                geniuses.forEach(genius => {
+                    nameItems.append('li')
+                        .attr('data-name', genius['Name'])
+                        .html(`<span class="name">${genius['Name']}</span> <span class="year">${genius['Year']}</span>`)
+                        .style('font-size', '16px'); // Larger font size for name list
+                });
+            });
+        }
+
+        // Initialize visualization when DOM is loaded
+        document.addEventListener('DOMContentLoaded', createVisualization);
+    </script>
+</body>
+</html>
